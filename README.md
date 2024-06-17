@@ -1,72 +1,81 @@
-# -Functions-and-Errors---ETH-AVAX
-Smart Contract Project For this project, write a smart contract that implements the require(), assert() and revert() statements.
-Sure! Here's a suggested description for your project that you can include in the README file on GitHub:
+# ErrorHandlingContract
 
----
+## Overview
 
-# ValueManager Smart Contract
-
-## Description
-
-The `ValueManager` smart contract is a Solidity-based contract designed to demonstrate the use of input validation and error handling in Ethereum smart contracts using the `require()`, `assert()`, and `revert()` statements. This project ensures robust value management and safe arithmetic operations, adhering to best practices in Solidity programming.
+The `ErrorHandlingContract` is a simple Solidity smart contract designed to perform a weight calculation based on a given mass and a fixed gravitational constant. It includes error handling to ensure that only the contract owner can perform calculations and that the input mass is valid.
 
 ## Features
 
-### setValue Function
-- **Purpose:** Sets a new value for the contract.
-- **Input Validation:** 
-  - Ensures the new value `_newValue` is greater than zero using the `require()` statement.
-  - Ensures the new value is different from the existing value using the `assert()` statement.
-- **Events:**
-  - Emits a `ValueChanged` event upon successful update of the value.
+- **Owner Restriction:** Only the contract owner can call the `calculateWeight` function.
+- **Error Handling:** Utilizes `require`, `assert`, and `revert` statements to handle errors and ensure valid input.
 
-### performDivision Function
-- **Purpose:** Performs division of two numbers and returns the result.
-- **Input Validation:**
-  - Ensures the `_denominator` is non-zero using the `require()` statement.
-  - Uses the `revert()` statement to provide a specific error message if the `_numerator` is not divisible by the `_denominator`.
+## Contract Details
 
-### getValue Function
-- **Purpose:** Retrieves the current value stored in the contract.
+### State Variables
+
+- `uint gravity`: A fixed gravitational constant set to 10.
+- `address owner`: Stores the address of the contract owner.
+
+### Constructor
+
+The constructor is executed once when the contract is deployed. It sets the deployer of the contract as the owner.
+
+```solidity
+constructor() {
+    owner = msg.sender;
+}
+```
+
+### Functions
+
+#### calculateWeight
+
+This function calculates the weight of an object based on its mass and the gravitational constant.
+
+```solidity
+function calculateWeight(uint _mass) public view returns (uint) {
+    require(owner == msg.sender, "Only the owner can calculate weight");  // Restrict access to the owner
+    assert(_mass > 0);  // Ensure mass is greater than zero
+    
+    uint weight = _mass * gravity;
+
+    if (weight == 0) {
+        revert("Weight of the object cannot be zero");  // Revert if weight calculation results in zero
+    }
+
+    return weight;  // Return the calculated weight
+}
+```
+
+**Parameters:**
+- `_mass`: The mass of the object (must be greater than 0).
+
+**Returns:**
+- The calculated weight of the object.
+
+**Error Handling:**
+- Uses `require` to ensure that only the contract owner can call this function.
+- Uses `assert` to ensure that the mass provided is greater than zero.
+- Uses `revert` to handle the case where the calculated weight is zero (which should not happen given the assert statement).
 
 ## Usage
 
-1. **Deploy the Contract:**
-   - Deploy the `ValueManager` contract to an Ethereum network.
-
-2. **Set a Value:**
-   - Call the `setValue` function with a positive integer to set a new value.
-
-3. **Perform Division:**
-   - Call the `performDivision` function with two integers where the denominator is non-zero. The function will return the result if the division is exact, otherwise, it will revert with an error message.
-
-4. **Get Current Value:**
-   - Call the `getValue` function to retrieve the current value stored in the contract.
+1. **Deploy the Contract:** Deploy the `ErrorHandlingContract` on the Ethereum blockchain.
+2. **Call `calculateWeight`:** Only the contract owner can call this function by providing a valid mass to get the weight.
 
 ## Example
 
 ```solidity
-// Set a new value
-valueManager.setValue(10);
+// Deploy the contract
+ErrorHandlingContract errorHandlingContract = new ErrorHandlingContract();
 
-// Perform division
-uint256 result = valueManager.performDivision(20, 2); // Returns 10
-
-// Get the current value
-uint256 currentValue = valueManager.getValue(); // Returns 10
+// Calculate weight (only callable by owner)
+uint weight = errorHandlingContract.calculateWeight(5);
 ```
-
-## Error Handling
-
-- **require():** Used to check conditions that must be met before executing the function logic, preventing the function from proceeding if the condition is not met.
-- **assert():** Used to check for conditions that should always be true and indicates a serious error if the condition is not met.
-- **revert():** Used to provide specific error messages and revert the transaction if certain conditions are not met during execution.
 
 ## License
 
-This project is licensed under the MIT License.
-
----
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 
 https://www.loom.com/share/b2dfdd25729246f9949f269ec029aa47
