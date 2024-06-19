@@ -1,25 +1,33 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.1;
 
-contract ErrorHandlingContract {
-
-    uint gravity = 10;  // Gravitational constant
-    address owner;      // Address of the contract owner
+contract SimpleAccessControl {
+    address owner;
+    uint private storedValue;
 
     constructor() {
-        owner = msg.sender;  // Set the contract deployer as the owner
+        owner = msg.sender;
     }
 
-    function calculateWeight(uint _mass) public view returns (uint) {
-        require(owner == msg.sender, "Only the owner can calculate weight");  // Restrict access to the owner
-        assert(_mass > 0);  // Ensure mass is greater than zero
-        
-        uint weight = _mass * gravity;
+    function setValue(uint _value) public {
+        require(msg.sender == owner, "Only the owner can set the value");
+        storedValue = _value;
+    }
 
-        if (weight == 0) {
-            revert("Weight of the object cannot be zero");  // Revert if weight calculation results in zero
+    function getValue() public view returns (uint) {
+        return storedValue;
+    }
+
+    function restrictedFunction() public view {
+        require(msg.sender == owner, "Only the owner can access this function");
+
+        if (storedValue == 0) {
+            revert("Stored value cannot be zero");
         }
+    }
 
-        return weight;  // Return the calculated weight
+    function assertTest() public pure {
+        uint testValue = 1;
+        assert(testValue == 1); // This should always be true
     }
 }
